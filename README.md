@@ -9,14 +9,73 @@
 ### 🧬 Stryker Mutation Testing
 [![Stryker Score: ~45%](https://img.shields.io/badge/Stryker%20Score-~45%25-orange?style=flat-square&logo=stryker)](https://stryker-mutator.io/)
 [![Mutations: 441](https://img.shields.io/badge/Mutations-441-red?style=flat-square)](stryker.conf.json)
-[![Tests: 153](https://img.shields.io/badge/Tests-153-blue?style=flat-square)](https://github.com/GabrielRozario/mutation-testing-stryker)
-[![TypeScript: Strict](https://img.shields.io/badge/TypeScript-Strict-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Killed: 198](https://img.shields.io/badge/Killed-198-red?style=flat-square)](reports/mutation/mutation.html)
+[![Survived: 243](https://img.shields.io/badge/Survived-243-yellow?style=flat-square)](reports/mutation/mutation.html)
 
 ## 🎯 Objetivo
 
 Este projeto demonstra **o poder e a importância dos testes de mutação** em validar a qualidade real dos testes. A discrepância entre a **cobertura tradicional (Jest)** e a **cobertura de mutação (Stryker)** revela quantos bugs potenciais poderiam passar desapercebidos por testes superficiais.
 
 > **Lição Principal**: Um teste com 90%+ de cobertura não garante que está testando o comportamento corretamente. Os testes de mutação expõem essa fraqueza.
+
+---
+
+## 📚 O que é Testes de Mutação?
+
+### Conceito Principal
+
+**Testes de mutação** são uma técnica avançada de validação que automaticamente modifica ("mutação") o código de produção e verifica se seus testes conseguem detectar essas mudanças. Se seus testes não falham quando o código é alterado, isso significa que seus testes **não estão verificando adequadamente** o comportamento esperado.
+
+### Como Funciona
+
+1. **Geração de Mutantes**: Stryker cria versões modificadas do seu código aplicando pequenas mudanças:
+   - Trocar `+` por `-`
+   - Trocar `>` por `>=`
+   - Remover validações
+   - Alterar números
+   - Inverter condições booleanas
+
+2. **Execução dos Testes**: Todos os seus testes são executados contra cada versão mutante
+
+3. **Classificação dos Mutantes**:
+
+#### 🔴 **Survived** (Sobreviveu)
+- Mutante **NÃO foi detectado** pelos testes
+- Teste passou mesmo depois que o código foi alterado
+- **Problema**: Seu teste não está realmente validando aquele comportamento
+- Exemplo: `if (value > 10)` → `if (value >= 10)` e o teste continua passando
+
+#### 🟢 **Killed** (Eliminado)
+- Mutante **foi detectado** e eliminou-o
+- Teste falhou quando o código foi alterado
+- **Bom**: Seu teste está realmente validando aquele comportamento
+- Exemplo: `return balance` → `return 0` e o teste fail
+
+#### ⚪ **Não classificado** (Ignored, Error, Timeout)
+- Mutante causou erro de compilação ou timeout
+- Geralmente não conta para a métrica
+
+### Stryker Score
+
+$$\text{Stryker Score} = \frac{\text{Killed}}{\text{Killed + Survived}} \times 100\%$$
+
+**Exemplos**:
+- Score 100%: Todos os mutantes foram detectados (testes perfeitos)
+- Score 45%: Apenas 45% dos mutantes foram detectados (testes fracos)
+- Score 0%: Nenhum mutante foi detectado (testes inúteis)
+
+### Por que isso importa?
+
+Considere este cenário:
+- ✅ Cobertura Jest: 95% (você acha que está bom)
+- ❌ Stryker Score: 30% (sua validação é fraca)
+
+Seu teste passa em 95% do código, mas apenas 30% dos bugs potenciais seriam detectados!
+
+**Neste projeto**: 
+- Jest Coverage: 94.19% ✅
+- Stryker Score: ~45% ⚠️
+- Isso significa: **~55% dos mutantes sobrevivem** (243 de 441)
 
 ---
 
