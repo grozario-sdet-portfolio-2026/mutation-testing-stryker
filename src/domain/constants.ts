@@ -1,0 +1,22 @@
+export const ROUNDING_DECIMAL_PLACES = 2;
+
+export function roundToTwoDecimals(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+export const DEFAULT_PAYMENT_FEE_RATE = 0.05;
+
+export const HIGH_VOLUME_PAYMENT_FEE_RATE = 0.042;
+
+export const HIGH_VOLUME_THRESHOLD = 10000;
+
+export const CHARGEBACK_FIXED_PENALTY = 15;
+
+export const CHARGEBACK_RISK_THRESHOLD = 3;
+
+export const CHARGEBACK_RATIO_HIGH_THRESHOLD = 0.2;
+export const CHARGEBACK_RATIO_MEDIUM_THRESHOLD = 0.1;
+
+export const HIGH_CHARGEBACK_RATIO_PENALTY = 50;
+
+export const REFUND_FULL_WINDOW_DAYS = 7;
