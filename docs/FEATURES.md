@@ -428,6 +428,6 @@ console.log(settlements);
 
 ## 🔗 Referências
 
-- [Documentação Principal](./prd.md) — Requisitos detalhados
-- [Checklist](./CHECKLIST.md) — Progresso da implementação
-- [README](../README.md) — Visão geral do projeto
+- [README do Projeto](../README.md) — Documentação completa do case study
+- [Análise v1](./SURVIVING_MUTANTS_v1.md) — Mutantes sobreviventes na versão inicial
+- [Análise v2](./SURVIVING_MUTANTS_v2.md) — Resultados da versão melhorada
