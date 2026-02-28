@@ -1,5 +1,6 @@
 import { Transaction } from '../models';
-import { roundToTwoDecimals, CHARGEBACK_FIXED_PENALTY } from '../domain/constants';
+import { CHARGEBACK_FIXED_PENALTY } from '../domain/constants';
+import { roundToTwoDecimals } from '../domain/validations';
 
 export interface ProcessedChargeback {
   chargebackTransactionId: string;

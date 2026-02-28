@@ -5,7 +5,7 @@ import {
   CHARGEBACK_RATIO_MEDIUM_THRESHOLD,
   HIGH_CHARGEBACK_RATIO_PENALTY
 } from '../domain/constants';
-import { roundToTwoDecimals } from '../domain/constants';
+import { roundToTwoDecimals } from '../domain/validations';
 
 export interface MerchantState {
   merchantId: string;

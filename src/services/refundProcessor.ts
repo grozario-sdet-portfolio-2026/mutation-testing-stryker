@@ -1,5 +1,6 @@
 import { Transaction } from '../models';
-import { roundToTwoDecimals, REFUND_FULL_WINDOW_DAYS } from '../domain/constants';
+import { REFUND_FULL_WINDOW_DAYS } from '../domain/constants';
+import { roundToTwoDecimals } from '../domain/validations';
 
 export interface ProcessedRefund {
   refundTransactionId: string;

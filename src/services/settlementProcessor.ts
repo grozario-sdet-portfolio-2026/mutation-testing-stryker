@@ -1,5 +1,5 @@
 import { Transaction, DailySettlement, TransactionStatus, TransactionType } from '../models';
-import { roundToTwoDecimals } from '../domain/constants';
+import { roundToTwoDecimals } from '../domain/validations';
 import { calculateChargebackRatio, determineRiskLevel } from './riskManager';
 
 export interface MerchantAggregation {

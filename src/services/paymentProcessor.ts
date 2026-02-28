@@ -1,10 +1,10 @@
 import { Transaction, TransactionStatus } from '../models';
 import {
-  roundToTwoDecimals,
   DEFAULT_PAYMENT_FEE_RATE,
   HIGH_VOLUME_PAYMENT_FEE_RATE,
   HIGH_VOLUME_THRESHOLD
 } from '../domain/constants';
+import { roundToTwoDecimals } from '../domain/validations';
 
 export interface ProcessedPayment {
   transactionId: string;
