@@ -1,0 +1,44 @@
+{
+  "name": "mutation-testing-stryker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "lint": "eslint src --ext .ts",
+    "mutation": "stryker run",
+    "build": "tsc",
+    "start": "node -r ts-node/register src/settlement.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grozario-sdet-portfolio-2026/mutation-testing-stryker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/grozario-sdet-portfolio-2026/mutation-testing-stryker/issues"
+  },
+  "homepage": "https://github.com/grozario-sdet-portfolio-2026/mutation-testing-stryker#readme",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@stryker-mutator/core": "^9.5.1",
+    "@stryker-mutator/jest-runner": "^9.5.1",
+    "@stryker-mutator/typescript-checker": "^9.5.1",
+    "@types/jest": "^30.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "eslint": "^10.0.2",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {}
+}
