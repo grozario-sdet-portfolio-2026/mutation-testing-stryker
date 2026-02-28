@@ -4,7 +4,7 @@
   "reporters": ["html", "json", "progress"],
   "coverageAnalysis": "off",
   "mutate": ["src/**/*.ts", "!src/**/*.d.ts", "!src/index.ts"],
-  "concurrency": 2,
+  "concurrency": 5,
   "timeoutMS": 10000,
   "timeoutFactor": 1.5,
   "maxTestRunnerReuse": 1,
@@ -12,9 +12,9 @@
     "enabled": false
   },
   "thresholds": {
-    "high": 0,
-    "low": 0,
-    "break": 0
+    "high": 90,
+    "low": 80,
+    "break": 85
   },
   "jest": {
     "projectType": "custom",
