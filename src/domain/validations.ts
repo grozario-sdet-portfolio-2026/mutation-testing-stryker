@@ -1,5 +1,9 @@
 import { Transaction, TransactionStatus, TransactionType } from '../models';
 
+export function roundToTwoDecimals(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
 export class ValidationError extends Error {
   constructor(message: string) {
     super(message);

@@ -1,9 +1,5 @@
 export const ROUNDING_DECIMAL_PLACES = 2;
 
-export function roundToTwoDecimals(value: number): number {
-  return Math.round(value * 100) / 100;
-}
-
 export const DEFAULT_PAYMENT_FEE_RATE = 0.05;
 
 export const HIGH_VOLUME_PAYMENT_FEE_RATE = 0.042;
