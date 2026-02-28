@@ -3,6 +3,7 @@ import {
   validateDate,
   validateRefundHasValidPayment,
   validateChargebackHasValidApprovedPayment,
+  validateChargebackReversedHasValidChargeback,
   validateRefundNotExceedsOriginal,
   validateTransaction,
   ValidationError
@@ -25,6 +26,49 @@ describe('Validations', () => {
     it('should not throw error when amount is positive', () => {
       expect(() => validateAmountNotNegative(100)).not.toThrow();
       expect(() => validateAmountNotNegative(0.01)).not.toThrow();
+    });
+
+    // Testes de limites exatos - crítico
+    it('should throw error for -0.01', () => {
+      expect(() => validateAmountNotNegative(-0.01)).toThrow(ValidationError);
+      expect(() => validateAmountNotNegative(-0.01)).toThrow(
+        'Transaction amount cannot be negative'
+      );
+    });
+
+    it('should throw error for very small negative number', () => {
+      expect(() => validateAmountNotNegative(-0.001)).toThrow(ValidationError);
+    });
+
+    it('should not throw for very small positive number', () => {
+      expect(() => validateAmountNotNegative(0.001)).not.toThrow();
+    });
+
+    it('should throw error for large negative number', () => {
+      expect(() => validateAmountNotNegative(-9999999.99)).toThrow(ValidationError);
+    });
+
+    it('should not throw for large positive number', () => {
+      expect(() => validateAmountNotNegative(9999999.99)).not.toThrow();
+    });
+
+    // Testes parametrizados
+    it.each([
+      [-1000, true],
+      [-100, true],
+      [-1, true],
+      [-0.01, true],
+      [0, false],
+      [0.01, false],
+      [1, false],
+      [100, false],
+      [1000, false],
+    ])('should handle amount %f correctly', (amount, shouldThrow) => {
+      if (shouldThrow) {
+        expect(() => validateAmountNotNegative(amount)).toThrow(ValidationError);
+      } else {
+        expect(() => validateAmountNotNegative(amount)).not.toThrow();
+      }
     });
   });
 
@@ -241,6 +285,134 @@ describe('Validations', () => {
     });
   });
 
+  describe('validateChargebackReversedHasValidChargeback', () => {
+    const chargebackTransaction: Transaction = {
+      id: 'chargeback-1',
+      merchantId: 'merchant-1',
+      type: TransactionType.CHARGEBACK,
+      amount: 100,
+      status: TransactionStatus.APPROVED,
+      createdAt: new Date('2025-01-02'),
+      originalTransactionId: 'payment-1'
+    };
+
+    it('should throw error when chargebackReversed has no originalTransactionId', () => {
+      const cbReversed: Transaction = {
+        id: 'cbr-1',
+        merchantId: 'merchant-1',
+        type: TransactionType.CHARGEBACK_REVERSED,
+        amount: 100,
+        status: TransactionStatus.APPROVED,
+        createdAt: new Date('2025-01-03')
+      };
+
+      const allTransactions = new Map([['chargeback-1', chargebackTransaction]]);
+
+      expect(() => validateChargebackReversedHasValidChargeback(cbReversed, allTransactions)).toThrow(ValidationError);
+      expect(() => validateChargebackReversedHasValidChargeback(cbReversed, allTransactions)).toThrow(
+        'ChargebackReversed must have an originalTransactionId'
+      );
+    });
+
+    it('should throw error when chargebackReversed references non-existent chargeback', () => {
+      const cbReversed: Transaction = {
+        id: 'cbr-1',
+        merchantId: 'merchant-1',
+        type: TransactionType.CHARGEBACK_REVERSED,
+        amount: 100,
+        status: TransactionStatus.APPROVED,
+        createdAt: new Date('2025-01-03'),
+        originalTransactionId: 'non-existent'
+      };
+
+      const allTransactions = new Map([['chargeback-1', chargebackTransaction]]);
+
+      expect(() => validateChargebackReversedHasValidChargeback(cbReversed, allTransactions)).toThrow(ValidationError);
+      expect(() => validateChargebackReversedHasValidChargeback(cbReversed, allTransactions)).toThrow(
+        'ChargebackReversed references non-existent chargeback: non-existent'
+      );
+    });
+
+    it('should throw error when chargebackReversed references payment instead of chargeback', () => {
+      const paymentTransaction: Transaction = {
+        id: 'payment-1',
+        merchantId: 'merchant-1',
+        type: TransactionType.PAYMENT,
+        amount: 100,
+        status: TransactionStatus.APPROVED,
+        createdAt: new Date('2025-01-01')
+      };
+
+      const cbReversed: Transaction = {
+        id: 'cbr-1',
+        merchantId: 'merchant-1',
+        type: TransactionType.CHARGEBACK_REVERSED,
+        amount: 100,
+        status: TransactionStatus.APPROVED,
+        createdAt: new Date('2025-01-03'),
+        originalTransactionId: 'payment-1'
+      };
+
+      const allTransactions = new Map([
+        ['payment-1', paymentTransaction],
+        ['chargeback-1', chargebackTransaction]
+      ]);
+
+      expect(() => validateChargebackReversedHasValidChargeback(cbReversed, allTransactions)).toThrow(ValidationError);
+      expect(() => validateChargebackReversedHasValidChargeback(cbReversed, allTransactions)).toThrow(
+        'ChargebackReversed must reference a chargeback, not payment'
+      );
+    });
+
+    it('should throw error when chargebackReversed references refund', () => {
+      const refundTransaction: Transaction = {
+        id: 'refund-1',
+        merchantId: 'merchant-1',
+        type: TransactionType.REFUND,
+        amount: 50,
+        status: TransactionStatus.APPROVED,
+        createdAt: new Date('2025-01-02'),
+        originalTransactionId: 'payment-1'
+      };
+
+      const cbReversed: Transaction = {
+        id: 'cbr-1',
+        merchantId: 'merchant-1',
+        type: TransactionType.CHARGEBACK_REVERSED,
+        amount: 100,
+        status: TransactionStatus.APPROVED,
+        createdAt: new Date('2025-01-03'),
+        originalTransactionId: 'refund-1'
+      };
+
+      const allTransactions = new Map([
+        ['refund-1', refundTransaction],
+        ['chargeback-1', chargebackTransaction]
+      ]);
+
+      expect(() => validateChargebackReversedHasValidChargeback(cbReversed, allTransactions)).toThrow(ValidationError);
+      expect(() => validateChargebackReversedHasValidChargeback(cbReversed, allTransactions)).toThrow(
+        'ChargebackReversed must reference a chargeback, not refund'
+      );
+    });
+
+    it('should not throw error when chargebackReversed has valid chargeback reference', () => {
+      const cbReversed: Transaction = {
+        id: 'cbr-1',
+        merchantId: 'merchant-1',
+        type: TransactionType.CHARGEBACK_REVERSED,
+        amount: 100,
+        status: TransactionStatus.APPROVED,
+        createdAt: new Date('2025-01-03'),
+        originalTransactionId: 'chargeback-1'
+      };
+
+      const allTransactions = new Map([['chargeback-1', chargebackTransaction]]);
+
+      expect(() => validateChargebackReversedHasValidChargeback(cbReversed, allTransactions)).not.toThrow();
+    });
+  });
+
   describe('validateRefundNotExceedsOriginal', () => {
     it('should throw error when refund exceeds original amount', () => {
       expect(() => validateRefundNotExceedsOriginal(150, 100)).toThrow(ValidationError);
@@ -261,6 +433,56 @@ describe('Validations', () => {
     it('should work with decimal values', () => {
       expect(() => validateRefundNotExceedsOriginal(99.99, 100.00)).not.toThrow();
       expect(() => validateRefundNotExceedsOriginal(100.01, 100.00)).toThrow(ValidationError);
+    });
+
+    // Testes de limites exatos - crítico
+    it('should not throw when refund exactly equals original', () => {
+      expect(() => validateRefundNotExceedsOriginal(123.45, 123.45)).not.toThrow();
+    });
+
+    it('should throw when refund is just above original', () => {
+      expect(() => validateRefundNotExceedsOriginal(100.01, 100)).toThrow(ValidationError);
+    });
+
+    it('should not throw when refund is just below original', () => {
+      expect(() => validateRefundNotExceedsOriginal(99.99, 100)).not.toThrow();
+    });
+
+    it('should throw error with specific values in message', () => {
+      expect(() => validateRefundNotExceedsOriginal(200, 150)).toThrow(
+        'Refund amount (200) cannot exceed original payment amount (150)'
+      );
+    });
+
+    it('should handle zero refund', () => {
+      expect(() => validateRefundNotExceedsOriginal(0, 100)).not.toThrow();
+    });
+
+    it('should handle zero original', () => {
+      expect(() => validateRefundNotExceedsOriginal(0, 0)).not.toThrow();
+      expect(() => validateRefundNotExceedsOriginal(0.01, 0)).toThrow(ValidationError);
+    });
+
+    it('should handle very small differences', () => {
+      expect(() => validateRefundNotExceedsOriginal(100.001, 100)).toThrow(ValidationError);
+      expect(() => validateRefundNotExceedsOriginal(99.999, 100)).not.toThrow();
+    });
+
+    // Testes parametrizados
+    it.each([
+      [50, 100, false],
+      [99, 100, false],
+      [99.99, 100, false],
+      [100, 100, false],
+      [100.01, 100, true],
+      [101, 100, true],
+      [200, 100, true],
+    ])('should validate refund %f against original %f correctly', (refund, original, shouldThrow) => {
+      if (shouldThrow) {
+        expect(() => validateRefundNotExceedsOriginal(refund, original)).toThrow(ValidationError);
+      } else {
+        expect(() => validateRefundNotExceedsOriginal(refund, original)).not.toThrow();
+      }
     });
   });
 
